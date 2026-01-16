@@ -1,0 +1,35 @@
+{
+	"tables": {
+		"Rating": {
+			"color": {
+				"red": 255,
+				"green": 255,
+				"blue": 255,
+				"alpha": 0
+			},
+			"coordinates": {
+				"left": 515.66927083333,
+				"top": 75.1171875,
+				"width": 120,
+				"height": 167.33203125
+			},
+			"displayable_fields_count": 6,
+			"fields_ordering": 1
+		},
+		"Product": {
+			"color": {
+				"red": 255,
+				"green": 255,
+				"blue": 255,
+				"alpha": 0
+			},
+			"coordinates": {
+				"left": 40,
+				"top": 40,
+				"width": 202.17317708333,
+				"height": 387.76432291667
+			},
+			"displayable_fields_count": 16
+		}
+	}
+}
