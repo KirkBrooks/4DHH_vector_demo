@@ -1,4 +1,4 @@
-//%attributes = {}
+//%attributes = {"preemptive":"capable"}
 
 var $path : Text:="4DworkDisk:4D_Happy_Hour:Vector Demo:Electronics.jsonl"
 var $text; $lastChar : Text

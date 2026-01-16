@@ -18,6 +18,7 @@ $workers: names of workers to call with file chunks
 */
 
 property path : Text  //  system path to the file
+property fileName : Text
 property chunkSize : Integer  // initial number of chunks to read
 property fileSize : Real
 property workers : Collection  // names of workers to call
@@ -32,6 +33,7 @@ Class constructor($path : Text; $method : Text; $workers : Collection)
 		return 
 	End if 
 	
+	This.fileName:=$file.name
 	This.path:=$path
 	This.fileSize:=$file.size
 	This.chunkSize:=20000
@@ -64,30 +66,26 @@ The chunks will be passed to workers seqeuentially
 		
 		If (Length($text)>2)  //  file ends in \n or maybe \r\n
 			// read until we are sure we have a complete object in the chunk
-			RECEIVE PACKET($lastChar; "}"+Char(10)+"{")
-/* read till next }\n{ 
+			RECEIVE PACKET($lastChar; "}"+Char(10)+"{")  // read till next }\n{ 
 			
-this string is not returned in receiveVar!
-So we have to add a } to $text
-*/
-			$text+=$lastChar+"}"
+			$text+=$lastChar+"}"  //Delimiter string is not returned in receiveVar!  So we have to add a } to $text
 			
+			If ($importedSize=0)  // this is the first chunk
+				$importedSize+=(Length($text)+1)  //  for \n
+				This._assign_chunk($text)
+			Else 
 /*
-This also means only the first chuck will have a leading {
+Only the first chuck will have a leading {
 All subsequent ones won't so we need to add it as well 
 */
-			If ($totalSize>0)
-				SEND PACKET($newDoc; "{"+$text)
-				$totalSize+=(Length($text)+2)  //  for  { and \n
-			Else 
-				SEND PACKET($newDoc; $text)
-				$totalSize+=(Length($text)+1)  //  for \n
+				$importedSize+=(Length($text)+2)  //  for  { and \n
+				This._assign_chunk("{"+$text)
+				// I'm avoiding $text:="{"+$text because re-writing $text is minimally slower
 			End if 
-			
-			This._assign_chunk($text)
 			
 			$importedSize+=Length($text)  // keep track of how many bytes read
 			This._msg($importedSize)
+			
 		End if 
 		
 	Until ($text="")  //  End for 
@@ -108,14 +106,5 @@ Function _assign_chunk($chunk : Text)
 	End if 
 	
 Function _msg($size : Real)
-	Case of 
-		: ($size=0)
-			MESSAGES ON
-			
-		: ($size=-1)
-			MESSAGES OFF
-			
-		Else 
-			MESSAGE("Total size: "+String($size/1048576; "########0.00")+" mbs\r")
-	End case 
+	Console_log(This.fileName+"; Data Read: "+String($size/1048576; "########0.00")+" mbs\r")
 	
