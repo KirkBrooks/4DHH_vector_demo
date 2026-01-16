@@ -3,27 +3,43 @@
 <plist version="1.0">
 <dict>
 	<key>files</key>
-	<dict/>
+	<dict>
+		<key>Resources/images/gears.png</key>
+		<data>
+		9ouyuaEXgVWRRhHYsBpMxVrKmek=
+		</data>
+	</dict>
 	<key>files2</key>
 	<dict>
 		<key>Console_Log.4DZ</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			8Nrp9xVBicUs8xFAoc9BslbD7dE=
+			KZmLulNqVb73I43f37CrQlb0QkY=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"f5a2309cfea8eae38a19678177250ab13a895763" or cdhash H"f0dae9f7154189c52cf31140a1cf41b256c3edd1"</string>
+			<string>cdhash H"4be3d6dbe0ce842132ec1b2b2ff899f6084c294d" or cdhash H"29998bba536a55bef7238ddfdfb0ab4256f44246"</string>
 		</dict>
 		<key>Libraries/lib4d-arm64.dylib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			LuViAET/trrrw3aRUbsuBDe/QH0=
+			Pw2iEN4y/xaG6yn4QwrRqKeRBIw=
 			</data>
 			<key>hash2</key>
 			<data>
-			RrISWgA92IR+ue57LpjcLxfB2S8KYuJkf+CYPzFAVlg=
+			1adJtCNkgK7iD91gfKkxa/nYXFXAjjqK+Q9EEOZ78xg=
+			</data>
+		</dict>
+		<key>Resources/images/gears.png</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			9ouyuaEXgVWRRhHYsBpMxVrKmek=
+			</data>
+			<key>hash2</key>
+			<data>
+			fC4AHHmhm9PoAXQGT2ErcryzURBfmJlmoWyGcsdPss0=
 			</data>
 		</dict>
 	</dict>

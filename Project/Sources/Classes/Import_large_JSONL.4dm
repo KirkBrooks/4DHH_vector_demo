@@ -23,20 +23,21 @@ property chunkSize : Integer  // initial number of chunks to read
 property fileSize : Real
 property workers : Collection  // names of workers to call
 property method : Text  // name of method to run on worker
-property nextWorkerIndx : Integer
+property nextWorkerIndx : Integer:=0
 property elapsedSeconds : Integer  // how long the import took in seconds
 
 Class constructor($path : Text; $method : Text; $workers : Collection)
 	var $file : 4D.File:=File($path; fk platform path)
 	If ($file.exists=False)
 		ALERT("That file does not exist!")
+		Console_log("Could not import: "+$file.name+" - does not exist.")
 		return 
 	End if 
 	
 	This.fileName:=$file.name
 	This.path:=$path
 	This.fileSize:=$file.size
-	This.chunkSize:=20000
+	This.chunkSize:=32000
 	
 	If ($method="")
 		ALERT("You must pass a method to run for each imported chunk.")
@@ -56,6 +57,8 @@ The chunks will be passed to workers seqeuentially
 */
 	var $text; $lastChar : Text
 	var $importedSize : Real
+	
+	Console_log("Beginning import of: "+This.fileName)
 	
 	var $ms:=Milliseconds
 	SET CHANNEL(10; This.path)
@@ -94,12 +97,14 @@ All subsequent ones won't so we need to add it as well
 	This._msg(-1)
 	This.elapsedSeconds:=(Milliseconds-$ms)/1000
 	
+	Console_log("Finished import of: "+This.fileName+" in "+String(This.elapsedSeconds)+" seconds")
+	
 Function _assign_chunk($chunk : Text)
 	//  assigns this chunk to the next worker 
-	CALL WORKER(This.workers[This.nextWorkerIndx]; This.method; $chunk)
+	CALL WORKER(This.workers[This.nextWorkerIndx]; This.method; $chunk; $this.fileName)
 	
 	// set the next worker index
-	If (This.nextWorkerIndx=This.workers.length)
+	If (This.nextWorkerIndx=(This.workers.length-1))
 		This.nextWorkerIndx:=0
 	Else 
 		This.nextWorkerIndx+=1

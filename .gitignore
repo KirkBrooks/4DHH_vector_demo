@@ -10,6 +10,9 @@ Libraries/
 # User preferences
 userPreferences.*/
 
+# the import data
+import files/
+
 Project/Trash
 
 .specstory/

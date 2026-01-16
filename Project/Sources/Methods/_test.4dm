@@ -1,6 +1,6 @@
 //%attributes = {"preemptive":"capable"}
 
-var $path : Text:="4DworkDisk:4D_Happy_Hour:Vector Demo:Electronics.jsonl"
+var $path : Text:="4DworkDisk:4D_Happy_Hour:Vector Demo:4DHH_vector_demo:import files:meta_Electronics.jsonl"
 var $text; $lastChar : Text
 var $chunkSize : Real
 var $totalSize : Real
@@ -8,13 +8,9 @@ var $ms : Integer
 
 $file:=File($path; fk platform path)
 
-
-
-
-
 SET CHANNEL(10; $path)  //  opens channel to the document without reading it
 
-$newDoc:=Create document("4DworkDisk:4D_Happy_Hour:Vector Demo:Electronics_copy.jsonl")
+$newDoc:=Create document("4DworkDisk:4D_Happy_Hour:Vector Demo:meta_Electronics_sample.jsonl")
 
 $chunkSize:=20000  //  number of chars to read
 
@@ -62,8 +58,4 @@ SET CHANNEL(11)  //  close the file
 CLOSE DOCUMENT($newDoc)
 
 ALERT("Elapsed time: "+String($ms/1000)+" seconds")
-
 ALERT("file size  = "+String($file.size)+"\n$totalSize = "+String($totalSize)+"\ndiff = "+String($totalSize-$file.size))
-
-//$text:=$chunks.join("\n")
-//SET TEXT TO PASTEBOARD($text)
