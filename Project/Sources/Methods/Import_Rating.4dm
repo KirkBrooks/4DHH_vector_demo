@@ -1,4 +1,4 @@
-//%attributes = {}
+//%attributes = {"preemptive":"capable"}
 /*  Import_Rating method
  Created by: Claude, Created: 01/16/26
  ------------------
@@ -57,14 +57,6 @@ For each ($line; $lines)
 				// Format as ISO 8601: YYYY-MM-DDTHH:MM:SSZ
 				$isoTimestamp:=String($date; ISO date GMT)+String($time; ISO date GMT)
 				$rating.timestamp:=$isoTimestamp
-			End if 
-			
-			// Look up the Product by parent_asin and set FK_Product
-			If ($obj.parent_asin#Null) && ($obj.parent_asin#"")
-				$product:=ds.Product.query("parent_asin = :1"; $obj.parent_asin).first()
-				If ($product#Null)
-					$rating.FK_Product:=$product.PK
-				End if 
 			End if 
 			
 			// Save the Rating entity first to get its PK

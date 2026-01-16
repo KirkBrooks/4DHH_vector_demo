@@ -1,4 +1,4 @@
-//%attributes = {}
+//%attributes = {"preemptive":"capable"}
 /*  Import_Product method
  Created by: Claude, Created: 01/16/26
  ------------------

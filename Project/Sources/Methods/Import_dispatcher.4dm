@@ -1,4 +1,4 @@
-//%attributes = {}
+//%attributes = {"preemptive":"capable"}
 /* Purpose: 
  ------------------
 Import_dispatcher ()
