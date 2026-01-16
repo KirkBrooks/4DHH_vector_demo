@@ -37,7 +37,7 @@ Class constructor($path : Text; $method : Text; $workers : Collection)
 	This.fileName:=$file.name
 	This.path:=$path
 	This.fileSize:=$file.size
-	This.chunkSize:=32000
+	This.chunkSize:=3200000
 	
 	If ($method="")
 		ALERT("You must pass a method to run for each imported chunk.")
@@ -101,7 +101,7 @@ All subsequent ones won't so we need to add it as well
 	
 Function _assign_chunk($chunk : Text)
 	//  assigns this chunk to the next worker 
-	CALL WORKER(This.workers[This.nextWorkerIndx]; This.method; $chunk; $this.fileName)
+	CALL WORKER(This.workers[This.nextWorkerIndx]; This.method; $chunk; This.fileName)
 	
 	// set the next worker index
 	If (This.nextWorkerIndx=(This.workers.length-1))

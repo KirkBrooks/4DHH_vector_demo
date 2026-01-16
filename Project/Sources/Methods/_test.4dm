@@ -1,4 +1,4 @@
-//%attributes = {"preemptive":"capable"}
+//%attributes = {}
 
 var $path : Text:="4DworkDisk:4D_Happy_Hour:Vector Demo:4DHH_vector_demo:import files:meta_Electronics.jsonl"
 var $text; $lastChar : Text
@@ -6,11 +6,11 @@ var $chunkSize : Real
 var $totalSize : Real
 var $ms : Integer
 
-$file:=File($path; fk platform path)
+var $file:=File($path; fk platform path)
 
 SET CHANNEL(10; $path)  //  opens channel to the document without reading it
 
-$newDoc:=Create document("4DworkDisk:4D_Happy_Hour:Vector Demo:meta_Electronics_sample.jsonl")
+var $newDoc:=Create document("4DworkDisk:4D_Happy_Hour:Vector Demo:meta_Electronics_sample.jsonl")
 
 $chunkSize:=20000  //  number of chars to read
 
