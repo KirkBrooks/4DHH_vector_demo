@@ -9,8 +9,8 @@ Import_data ()
 var $path : Text
 
 //  this file has the Product data in it
-$path:="4DworkDisk:4D_Happy_Hour:Vector Demo:4DHH_vector_demo:import files:Electronics.jsonl"
+$path:="4DworkDisk:4D_Happy_Hour:Vector Demo:4DHH_vector_demo:import files:meta_Electronics.jsonl"
 
-// TRUNCATE TABLE([Product])
+TRUNCATE TABLE([Product])
 
-Import_dispatcher($path; "Import_Rating")
+Import_dispatcher($path; "Import_Product")

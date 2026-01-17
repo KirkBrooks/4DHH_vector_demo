@@ -57,6 +57,7 @@ The chunks will be passed to workers seqeuentially
 */
 	var $text; $lastChar : Text
 	var $importedSize : Real
+	var $i : Integer
 	
 	Console_log("Beginning import of: "+This.fileName)
 	
@@ -88,6 +89,13 @@ All subsequent ones won't so we need to add it as well
 			
 			$importedSize+=Length($text)  // keep track of how many bytes read
 			This._msg($importedSize)
+			
+			$i+=1
+			
+			If ($i>100)
+				DELAY PROCESS(Current process; 60*2)
+				$i:=0
+			End if 
 			
 		End if 
 		
