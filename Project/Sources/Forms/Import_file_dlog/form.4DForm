@@ -24,6 +24,16 @@
 		},
 		{
 			"objects": {
+				"Rectangle": {
+					"type": "rectangle",
+					"top": 116,
+					"left": 8,
+					"width": 700,
+					"height": 147,
+					"fill": "#FAFAFA",
+					"stroke": "transparent",
+					"borderRadius": 8
+				},
 				"Text": {
 					"type": "text",
 					"text": "File:",
@@ -38,7 +48,7 @@
 				"Text1": {
 					"type": "text",
 					"text": "Number Workers:",
-					"top": 124,
+					"top": 166,
 					"left": 8,
 					"width": 121,
 					"height": 16,
@@ -49,18 +59,7 @@
 				"Text2": {
 					"type": "text",
 					"text": "Queue Job Limit:",
-					"top": 154,
-					"left": 8,
-					"width": 121,
-					"height": 16,
-					"fontSize": 14,
-					"stroke": "#696969",
-					"textAlign": "right"
-				},
-				"Text3": {
-					"type": "text",
-					"text": "Delay:",
-					"top": 184,
+					"top": 217,
 					"left": 8,
 					"width": 121,
 					"height": 16,
@@ -71,7 +70,7 @@
 				"Text4": {
 					"type": "text",
 					"text": "Worker Method:",
-					"top": 42,
+					"top": 60,
 					"left": 8,
 					"width": 121,
 					"height": 16,
@@ -82,7 +81,7 @@
 				"Text5": {
 					"type": "text",
 					"text": "Tables:",
-					"top": 64,
+					"top": 84,
 					"left": 8,
 					"width": 121,
 					"height": 16,
@@ -95,57 +94,30 @@
 					"left": 142,
 					"top": 16,
 					"width": 551,
-					"height": 17,
+					"height": 33,
 					"dataSource": "Form:C1466.file.path",
 					"enterable": false,
-					"focusable": false
+					"focusable": false,
+					"multiline": "yes"
 				},
 				"method_name": {
 					"type": "input",
 					"left": 142,
-					"top": 40,
+					"top": 58,
 					"width": 211,
 					"height": 17,
-					"dataSource": ""
+					"dataSource": "Form:C1466.method_name",
+					"placeholder": "  runs in workers"
 				},
 				"table_names": {
 					"type": "input",
 					"left": 142,
-					"top": 64,
+					"top": 84,
 					"width": 551,
 					"height": 17,
 					"dataSource": "",
-					"enterable": false
-				},
-				"numberWorkers": {
-					"type": "input",
-					"left": 142,
-					"top": 125,
-					"width": 71,
-					"height": 17,
-					"dataSource": "",
-					"dataSourceTypeHint": "integer",
-					"placeholder": " 1 - 8 "
-				},
-				"queue_limit": {
-					"type": "input",
-					"left": 142,
-					"top": 155,
-					"width": 71,
-					"height": 17,
-					"dataSource": "",
-					"dataSourceTypeHint": "integer",
-					"placeholder": " 20 - 100"
-				},
-				"delay": {
-					"type": "input",
-					"left": 142,
-					"top": 185,
-					"width": 71,
-					"height": 17,
-					"dataSource": "",
-					"dataSourceTypeHint": "integer",
-					"placeholder": "0 - 3600"
+					"enterable": false,
+					"placeholder": "  import will create records in these tables"
 				},
 				"btn_file": {
 					"type": "button",
@@ -157,11 +129,91 @@
 					"events": [
 						"onClick"
 					]
+				},
+				"ruler_n_workers": {
+					"type": "ruler",
+					"left": 142,
+					"top": 160,
+					"width": 272,
+					"height": 28,
+					"max": 8,
+					"events": [],
+					"min": 2,
+					"graduationStep": 1,
+					"labelsPlacement": "bottom",
+					"showGraduations": true,
+					"dataSource": "Form:C1466.ruler_n_workers"
+				},
+				"ruler_queue_limit": {
+					"type": "ruler",
+					"left": 142,
+					"top": 211,
+					"width": 543,
+					"height": 28,
+					"max": 200,
+					"events": [],
+					"min": 10,
+					"graduationStep": 10,
+					"labelsPlacement": "bottom",
+					"showGraduations": true,
+					"dataSource": "Form:C1466.ruler_queue_limit"
+				},
+				"Text6": {
+					"type": "text",
+					"text": "Chunk size :",
+					"top": 126,
+					"left": 8,
+					"width": 121,
+					"height": 16,
+					"fontSize": 14,
+					"stroke": "#696969",
+					"textAlign": "right"
+				},
+				"chunckSize": {
+					"type": "input",
+					"left": 142,
+					"top": 126,
+					"width": 103,
+					"height": 17,
+					"dataSource": "Form:C1466.chunkSize"
+				},
+				"truncate_tables": {
+					"type": "checkbox",
+					"text": "Truncate Tables before import",
+					"top": 57,
+					"left": 445,
+					"width": 240,
+					"height": 19,
+					"events": [
+						"onClick"
+					],
+					"dataSource": "Form:C1466.truncate_tables",
+					"dataSourceTypeHint": "boolean"
+				},
+				"btn_import": {
+					"type": "button",
+					"text": "Do Import",
+					"top": 271,
+					"left": 28,
+					"width": 101,
+					"height": 24,
+					"events": [
+						"onClick"
+					]
+				},
+				"WebArea": {
+					"type": "webArea",
+					"left": 8,
+					"top": 306,
+					"width": 700,
+					"height": 331,
+					"sizingX": "grow",
+					"sizingY": "grow"
 				}
 			}
 		}
 	],
-	"geometryStamp": 164,
+	"geometryStamp": 249,
 	"formClass": "Import_dialog_controller",
 	"editor": {
 		"activeView": "View 1",
@@ -169,5 +221,6 @@
 		"views": {
 			"View 1": {}
 		}
-	}
+	},
+	"method": "method.4dm"
 }

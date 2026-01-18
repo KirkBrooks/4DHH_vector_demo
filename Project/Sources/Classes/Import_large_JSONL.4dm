@@ -23,8 +23,11 @@ property next_worker_index : Integer:=0
 Class constructor($parameters : Object)
 	This.parameters:=$parameters  //  shared object
 	
-Function get worker_limit_index : Integer
+Function get worker_limit_index : Integer  //  max number of workers
 	return This.parameters.worker_limit_index
+	
+Function get worker_queue_limit : Integer  //  max number of jobs in worker queue
+	return This.parameters.worker_queue_limit
 	
 Function get path : Text
 	return This.parameters.path
@@ -40,9 +43,6 @@ Function get method : Text
 	
 Function get ok_to_run : Boolean
 	return This.parameters.ok_to_run
-	
-Function get delay_ticks : Integer
-	return This.parameters.delay_ticks
 	
 Function import_file()
 /*  Read a chunck of data and pass it to a worker for processing
@@ -67,23 +67,22 @@ The chunks will be passed to workers seqeuentially
 			
 			$text+=$lastChar+"}"  //Delimiter string is not returned in receiveVar!  So we have to add a } to $text
 			
-			If ($importedSize=0)  // this is the first chunk
-				$importedSize+=(Length($text)+1)  //  for \n
-				This._assign_chunk($text)
-			Else 
+			Case of 
+				: ($importedSize=0)  // this is the first chunk
+					$importedSize+=(Length($text)+1)  //  for \n
+					This._assign_chunk($text)
+				Else 
 /*
 Only the first chuck will have a leading {
 All subsequent ones won't so we need to add it as well 
 */
-				$importedSize+=(Length($text)+2)  //  for  { and \n
-				This._assign_chunk("{"+$text)
-				// I'm avoiding $text:="{"+$text because re-writing $text is minimally slower
-			End if 
+					$importedSize+=(Length($text)+2)  //  for  { and \n
+					This._assign_chunk("{"+$text)
+					// I'm avoiding $text:="{"+$text because re-writing $text is minimally slower
+			End case 
 			
 			$importedSize+=Length($text)  // keep track of how many bytes read
 			This._msg($importedSize)
-			
-			This._pause()
 			
 		End if 
 		
@@ -93,30 +92,34 @@ All subsequent ones won't so we need to add it as well
 	
 	Console_log("Finished importing : "+This.fileName+" in "+String(This.elapsedSeconds)+" seconds")
 	
-Function _pause()
-	
-	If (This.worker_queue.sum()>This.worker_queue_limit)
-		Console_log(" -- import pause:  "+JSON Stringify(This.worker_queue))
-		DELAY PROCESS(Current process; This.delay_ticks)
-	End if 
 	
 Function _assign_chunk($chunk : Text)
-	//  assigns this chunk to the next worker 
-	var $next_index : Integer:=This.next_worker_index+1
+	//  assigns this chunk to the next worker that has capacity
+	var $next_index : Integer:=This.next_worker_index
+	var $ok : Boolean
 	
-	If ($next_index>This.worker_limit_index)  // over limit
-		$next_index:=0  // start back at the bottom
-	End if 
+	Repeat 
+		If ($next_index>This.worker_limit_index)  // over limit
+			$next_index:=0  // start back at the bottom
+		Else 
+			$next_index+=1  //  increment to the next worker index
+		End if 
+		
+		// how many jobs in this queue?
+		$ok:=This.parameters.worker_queue[$next_index]<This.worker_queue_limit
+		
+		IDLE  // yield back
+	Until ($ok)
 	
 	var $workerName:="Importer_"+String($next_index)
-	
-	This.next_worker_index:=$next_index
 	// increment the queue counter
 	Use (This.parameters.worker_queue)
 		This.parameters.worker_queue[$next_index]+=1
 	End use 
 	
 	CALL WORKER($workerName; This.method; $chunk; This.fileName; This.parameters.worker_queue)
+	
+	This.next_worker_index:=$next_index+1
 	
 Function _msg($size : Real)
 	Console_log(This.fileName+"; Data Read: "+String($size/1048576; "########0.00")+" mbs;  "+String(Round($size/This.fileSize*100; 3); "###0.000")+" % \r")
