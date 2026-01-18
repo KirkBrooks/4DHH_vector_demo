@@ -8,7 +8,7 @@ Called by Import_large_JSONL class via CALL WORKER.
 Each line in the chunk is a JSON object with Product data from meta_Electronics.jsonl
 */
 
-#DECLARE($chunk : Text; $fileName : Text)
+#DECLARE($chunk : Text; $fileName : Text; $worker : Collection)
 Console_log("Processing: "+$fileName+"; "+Current process name)
 
 var $lines : Collection
@@ -78,5 +78,9 @@ For each ($line; $lines)
 		End if 
 	End if 
 End for each 
+
+Use ($worker)
+	$worker[Num(Current process name)]-=1
+End use 
 
 Console_log(Current process name+"; "+String($count)+" records created. ")

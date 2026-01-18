@@ -7,10 +7,25 @@ Import_data ()
 
 
 var $path : Text
+var $n_workers : Integer
 
-//  this file has the Product data in it
-$path:="4DworkDisk:4D_Happy_Hour:Vector Demo:4DHH_vector_demo:import files:meta_Electronics.jsonl"
+$n_workers:=6
 
-TRUNCATE TABLE([Product])
+CONFIRM("Start the Product data import?")
+If (ok=1)
+	//  this file has the Product data in it
+	$path:="4DworkDisk:4D_Happy_Hour:Vector Demo:4DHH_vector_demo:import files:meta_Electronics.jsonl"
+	//Import_dispatcher($path; "Import_Product"; $n_workers)
+End if 
 
-Import_dispatcher($path; "Import_Product")
+
+
+
+CONFIRM("Start the Rating Data Import")
+If (ok=1)
+	TRUNCATE TABLE([Rating])
+	TRUNCATE TABLE([RatingImage])
+	//  this file has the Reviews data in it
+	$path:="4DworkDisk:4D_Happy_Hour:Vector Demo:4DHH_vector_demo:import files:Electronics.jsonl"
+	//Import_dispatcher($path; "Import_Rating"; $n_workers)
+End if 

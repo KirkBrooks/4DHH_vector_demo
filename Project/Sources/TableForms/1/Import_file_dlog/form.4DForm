@@ -1,0 +1,173 @@
+{
+	"$4d": {
+		"version": "1",
+		"kind": "form"
+	},
+	"windowSizingX": "variable",
+	"windowSizingY": "variable",
+	"windowMinWidth": 0,
+	"windowMinHeight": 0,
+	"windowMaxWidth": 32767,
+	"windowMaxHeight": 32767,
+	"rightMargin": 20,
+	"bottomMargin": 20,
+	"events": [
+		"onLoad",
+		"onClick",
+		"onDataChange"
+	],
+	"windowTitle": "window title",
+	"destination": "detailScreen",
+	"pages": [
+		{
+			"objects": {}
+		},
+		{
+			"objects": {
+				"Text": {
+					"type": "text",
+					"text": "File:",
+					"top": 14,
+					"left": 8,
+					"width": 121,
+					"height": 16,
+					"fontSize": 14,
+					"stroke": "#696969",
+					"textAlign": "right"
+				},
+				"Text1": {
+					"type": "text",
+					"text": "Number Workers:",
+					"top": 124,
+					"left": 8,
+					"width": 121,
+					"height": 16,
+					"fontSize": 14,
+					"stroke": "#696969",
+					"textAlign": "right"
+				},
+				"Text2": {
+					"type": "text",
+					"text": "Queue Job Limit:",
+					"top": 154,
+					"left": 8,
+					"width": 121,
+					"height": 16,
+					"fontSize": 14,
+					"stroke": "#696969",
+					"textAlign": "right"
+				},
+				"Text3": {
+					"type": "text",
+					"text": "Delay:",
+					"top": 184,
+					"left": 8,
+					"width": 121,
+					"height": 16,
+					"fontSize": 14,
+					"stroke": "#696969",
+					"textAlign": "right"
+				},
+				"Text4": {
+					"type": "text",
+					"text": "Worker Method:",
+					"top": 42,
+					"left": 8,
+					"width": 121,
+					"height": 16,
+					"fontSize": 14,
+					"stroke": "#696969",
+					"textAlign": "right"
+				},
+				"Text5": {
+					"type": "text",
+					"text": "Tables:",
+					"top": 64,
+					"left": 8,
+					"width": 121,
+					"height": 16,
+					"fontSize": 14,
+					"stroke": "#696969",
+					"textAlign": "right"
+				},
+				"Input": {
+					"type": "input",
+					"left": 142,
+					"top": 16,
+					"width": 551,
+					"height": 17,
+					"dataSource": "Form:C1466.file.path",
+					"enterable": false,
+					"focusable": false
+				},
+				"method_name": {
+					"type": "input",
+					"left": 142,
+					"top": 40,
+					"width": 211,
+					"height": 17,
+					"dataSource": ""
+				},
+				"table_names": {
+					"type": "input",
+					"left": 142,
+					"top": 64,
+					"width": 551,
+					"height": 17,
+					"dataSource": "",
+					"enterable": false
+				},
+				"numberWorkers": {
+					"type": "input",
+					"left": 142,
+					"top": 125,
+					"width": 71,
+					"height": 17,
+					"dataSource": "",
+					"dataSourceTypeHint": "integer",
+					"placeholder": " 1 - 8 "
+				},
+				"queue_limit": {
+					"type": "input",
+					"left": 142,
+					"top": 155,
+					"width": 71,
+					"height": 17,
+					"dataSource": "",
+					"dataSourceTypeHint": "integer",
+					"placeholder": " 20 - 100"
+				},
+				"delay": {
+					"type": "input",
+					"left": 142,
+					"top": 185,
+					"width": 71,
+					"height": 17,
+					"dataSource": "",
+					"dataSourceTypeHint": "integer",
+					"placeholder": "0 - 3600"
+				},
+				"btn_file": {
+					"type": "button",
+					"text": "Choose file...",
+					"top": 11,
+					"left": 28,
+					"width": 101,
+					"height": 24,
+					"events": [
+						"onClick"
+					]
+				}
+			}
+		}
+	],
+	"geometryStamp": 164,
+	"formClass": "Import_dialog_controller",
+	"editor": {
+		"activeView": "View 1",
+		"defaultView": "View 1",
+		"views": {
+			"View 1": {}
+		}
+	}
+}

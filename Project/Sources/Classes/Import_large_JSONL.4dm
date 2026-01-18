@@ -17,39 +17,32 @@ $workers: names of workers to call with file chunks
 
 */
 
-property path : Text  //  system path to the file
-property fileName : Text
-property chunkSize : Integer  // initial number of chunks to read
-property fileSize : Real
-property workers : Collection  // names of workers to call
-property method : Text  // name of method to run on worker
-property nextWorkerIndx : Integer:=0
-property elapsedSeconds : Integer  // how long the import took in seconds
+property parameters : Object
+property next_worker_index : Integer:=0
 
-Class constructor($path : Text; $method : Text; $workers : Collection)
-	var $file : 4D.File:=File($path; fk platform path)
-	If ($file.exists=False)
-		ALERT("That file does not exist!")
-		Console_log("Could not import: "+$file.name+" - does not exist.")
-		return 
-	End if 
+Class constructor($parameters : Object)
+	This.parameters:=$parameters  //  shared object
 	
-	This.fileName:=$file.name
-	This.path:=$path
-	This.fileSize:=$file.size
-	This.chunkSize:=3200000
+Function get worker_limit_index : Integer
+	return This.parameters.worker_limit_index
 	
-	If ($method="")
-		ALERT("You must pass a method to run for each imported chunk.")
-		return 
-	End if 
-	This.method:=$method
+Function get path : Text
+	return This.parameters.path
 	
-	If ($workers.length=0)
-		ALERT("You did not specify any workers to run the import method.")
-		return 
-	End if 
-	This.workers:=$workers
+Function get fileName : Text
+	return This.parameters.fileName
+	
+Function get chunkSize : Integer
+	return This.parameters.chunkSize
+	
+Function get method : Text
+	return This.parameters.method
+	
+Function get ok_to_run : Boolean
+	return This.parameters.ok_to_run
+	
+Function get delay_ticks : Integer
+	return This.parameters.delay_ticks
 	
 Function import_file()
 /*  Read a chunck of data and pass it to a worker for processing
@@ -58,12 +51,12 @@ The chunks will be passed to workers seqeuentially
 	var $text; $lastChar : Text
 	var $importedSize : Real
 	var $i : Integer
+	var $threshold; $delay : Integer
 	
 	Console_log("Beginning import of: "+This.fileName)
 	
 	var $ms:=Milliseconds
 	SET CHANNEL(10; This.path)
-	This._msg(0)
 	
 	Repeat 
 		RECEIVE PACKET($text; This.chunkSize)
@@ -90,34 +83,41 @@ All subsequent ones won't so we need to add it as well
 			$importedSize+=Length($text)  // keep track of how many bytes read
 			This._msg($importedSize)
 			
-			$i+=1
-			
-			If ($i>100)
-				DELAY PROCESS(Current process; 60*2)
-				$i:=0
-			End if 
+			This._pause()
 			
 		End if 
 		
-	Until ($text="")  //  End for 
+	Until ($text="") || (Not(This.ok_to_run))
 	
 	SET CHANNEL(11)  //  close the file
-	This._msg(-1)
-	This.elapsedSeconds:=(Milliseconds-$ms)/1000
 	
-	Console_log("Finished import of: "+This.fileName+" in "+String(This.elapsedSeconds)+" seconds")
+	Console_log("Finished importing : "+This.fileName+" in "+String(This.elapsedSeconds)+" seconds")
+	
+Function _pause()
+	
+	If (This.worker_queue.sum()>This.worker_queue_limit)
+		Console_log(" -- import pause:  "+JSON Stringify(This.worker_queue))
+		DELAY PROCESS(Current process; This.delay_ticks)
+	End if 
 	
 Function _assign_chunk($chunk : Text)
 	//  assigns this chunk to the next worker 
-	CALL WORKER(This.workers[This.nextWorkerIndx]; This.method; $chunk; This.fileName)
+	var $next_index : Integer:=This.next_worker_index+1
 	
-	// set the next worker index
-	If (This.nextWorkerIndx=(This.workers.length-1))
-		This.nextWorkerIndx:=0
-	Else 
-		This.nextWorkerIndx+=1
+	If ($next_index>This.worker_limit_index)  // over limit
+		$next_index:=0  // start back at the bottom
 	End if 
 	
+	var $workerName:="Importer_"+String($next_index)
+	
+	This.next_worker_index:=$next_index
+	// increment the queue counter
+	Use (This.parameters.worker_queue)
+		This.parameters.worker_queue[$next_index]+=1
+	End use 
+	
+	CALL WORKER($workerName; This.method; $chunk; This.fileName; This.parameters.worker_queue)
+	
 Function _msg($size : Real)
-	Console_log(This.fileName+"; Data Read: "+String($size/1048576; "########0.00")+" mbs\r")
+	Console_log(This.fileName+"; Data Read: "+String($size/1048576; "########0.00")+" mbs;  "+String(Round($size/This.fileSize*100; 3); "###0.000")+" % \r")
 	

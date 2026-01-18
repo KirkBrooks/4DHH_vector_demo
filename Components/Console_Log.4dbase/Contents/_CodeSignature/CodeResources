@@ -15,20 +15,20 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			KZmLulNqVb73I43f37CrQlb0QkY=
+			a4RMbmW6CDIOBtubV9XmuZgJM+A=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"4be3d6dbe0ce842132ec1b2b2ff899f6084c294d" or cdhash H"29998bba536a55bef7238ddfdfb0ab4256f44246"</string>
+			<string>cdhash H"8fe5b5510d28f470e5be40a0fd06e0f749bfa905" or cdhash H"6b844c6e65ba08320e06db9b57d5e6b9980933e0"</string>
 		</dict>
 		<key>Libraries/lib4d-arm64.dylib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Pw2iEN4y/xaG6yn4QwrRqKeRBIw=
+			iVs2qiVBTScZix2sDywHdDw957o=
 			</data>
 			<key>hash2</key>
 			<data>
-			1adJtCNkgK7iD91gfKkxa/nYXFXAjjqK+Q9EEOZ78xg=
+			AXHm7pURU7AsD0dxUNfQPh4DMKcqY+hWPMqeKAjfYlk=
 			</data>
 		</dict>
 		<key>Resources/images/gears.png</key>

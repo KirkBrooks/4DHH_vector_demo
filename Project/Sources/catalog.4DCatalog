@@ -123,19 +123,19 @@
 			<table_ref uuid="B06FA2B49AF24B3DB2CE6708347AF8B9" name="Rating"/>
 		</field_ref>
 	</index>
-	<index kind="regular" uuid="94AF2C7658964948AA23FB815E9EA743" type="7">
+	<index kind="regular" uuid="26CA8C001CF845E78F37EEA6952F6F08" type="3">
 		<field_ref uuid="F46BC7E464034E2ABD1AC0D96ABB56F0" name="parent_asin">
+			<table_ref uuid="CFCB1C14F79E4E05BD1D8FE711B15ADA" name="Product"/>
+		</field_ref>
+	</index>
+	<index kind="regular" unique_keys="true" uuid="59AED0973D514C778254D6CF90128785" type="1">
+		<field_ref uuid="2920B9102E894B1E9BBB8693A451F82A" name="PK">
 			<table_ref uuid="CFCB1C14F79E4E05BD1D8FE711B15ADA" name="Product"/>
 		</field_ref>
 	</index>
 	<index kind="regular" unique_keys="true" uuid="A1B2C3D4E5F6478990A1B2C3D4E5F620" type="7">
 		<field_ref uuid="D1E2F3A4B5C6D7E8F9A0B1C2D3E4F5A6" name="PK">
 			<table_ref uuid="C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6" name="RatingImage"/>
-		</field_ref>
-	</index>
-	<index kind="regular" unique_keys="true" uuid="B28F130B81D84C89B768C3BE7EB32C94" type="7">
-		<field_ref uuid="2920B9102E894B1E9BBB8693A451F82A" name="PK">
-			<table_ref uuid="CFCB1C14F79E4E05BD1D8FE711B15ADA" name="Product"/>
 		</field_ref>
 	</index>
 	<base_extra>
