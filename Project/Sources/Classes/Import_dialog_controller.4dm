@@ -54,12 +54,24 @@ Function handle_event($formEvent : Object)->$handled : Boolean
 		: ($formEvent.objectName="btn_file")
 			This.handle_btn_file($formEvent)
 			
+		: ($formEvent.objectName="btn_import")
+			This.handle_btn_import($formEvent)
 			
 		Else 
 			$handled:=False
 	End case 
 	
 	//mark:  --- functions
+Function handle_btn_import($formEvent : Object)
+	If ($formEvent.code#On Clicked)
+		return 
+	End if 
+	
+	OBJECT SET ENABLED(*; "btn_import"; False)
+	
+	This._truncate_tables()
+	Import_dispatcher(This.parameters)
+	
 Function handle_method_name($formEvent : Object)
 	// is this a valid method?
 	ARRAY TEXT($aMethods; 0)
@@ -143,4 +155,15 @@ Function _set_parameter($key : Text; $value)
 	Use (This.parameters)
 		This.parameters[$key]:=$value
 	End use 
+	
+Function _truncate_tables
+	var $f : 4D.Function
+	var $table : Text
+	
+	If (This.truncate_tables)
+		For each ($table; This.tables)
+			$f:=Formula from string("TRUCATE TABLE(["+$table+"])")
+			$f.call()
+		End for each 
+	End if 
 	
