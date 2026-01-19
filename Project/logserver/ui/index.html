@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Server</title>
+  <style>
+    :root {
+      --bg: #1a1a2e;
+      --surface: #16213e;
+      --border: #0f3460;
+      --text: #e8e8e8;
+      --text-dim: #888;
+      --accent: #00d9ff;
+      --error: #ff6b6b;
+      --warn: #ffd93d;
+      --info: #6bcb77;
+      --debug: #888;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container { max-width: 1400px; margin: 0 auto; }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    h1 { font-size: 1.5rem; font-weight: 500; }
+    
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--info);
+    }
+    
+    .status-dot.error { background: var(--error); }
+    
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .panel-title { font-size: 0.9rem; color: var(--text-dim); }
+    
+    .channels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    
+    .channel-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    
+    .channel-card:hover { border-color: var(--accent); }
+    .channel-card.selected { border-color: var(--accent); background: rgba(0, 217, 255, 0.1); }
+    
+    .channel-name { font-weight: 500; margin-bottom: 5px; }
+    .channel-stats { font-size: 0.8rem; color: var(--text-dim); }
+    
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      background: var(--border);
+      border: none;
+      color: var(--text);
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    
+    button:hover { background: var(--accent); color: var(--bg); }
+    button.active { background: var(--accent); color: var(--bg); }
+    
+    input, textarea, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+    
+    input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    
+    .query-input {
+      width: 100%;
+      min-height: 80px;
+      resize: vertical;
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+    }
+    
+    .query-hint {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 8px;
+    }
+    
+    .log-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    
+    .log-table th {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+    }
+    
+    .log-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    
+    .log-table tr:hover { background: rgba(255,255,255,0.02); }
+    
+    .level-debug { color: var(--debug); }
+    .level-info { color: var(--info); }
+    .level-warn { color: var(--warn); }
+    .level-error { color: var(--error); }
+    
+    .timestamp { color: var(--text-dim); font-family: monospace; white-space: nowrap; }
+    .message { word-break: break-word; }
+    .data { font-family: monospace; font-size: 0.8rem; color: var(--text-dim); }
+    
+    .log-container {
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-dim);
+    }
+    
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+    }
+    
+    .metric {
+      text-align: center;
+    }
+    
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+    
+    .refresh-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .refresh-controls label {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📋 Log Server</h1>
+      <div class="status">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Connecting...</span>
+      </div>
+    </header>
+    
+    <!-- Metrics Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Server Metrics</span>
+        <div class="refresh-controls">
+          <label>
+            <input type="checkbox" id="autoRefresh" checked> Auto-refresh
+          </label>
+          <select id="refreshRate">
+            <option value="1000">1s</option>
+            <option value="2000" selected>2s</option>
+            <option value="5000">5s</option>
+            <option value="10000">10s</option>
+          </select>
+        </div>
+      </div>
+      <div class="metrics-grid" id="metricsGrid">
+        <div class="metric">
+          <div class="metric-value" id="metricQueue">-</div>
+          <div class="metric-label">Queue Depth</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value" id="metricChannels">-</div>
+          <div class="metric-label">Channels</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value" id="metricUptime">-</div>
+          <div class="metric-label">Uptime</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Channels Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Channels</span>
+        <button onclick="refreshChannels()">Refresh</button>
+      </div>
+      <div class="channels-grid" id="channelsGrid">
+        <div class="empty-state">No channels yet</div>
+      </div>
+    </div>
+    
+    <!-- Query Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Query</span>
+        <div class="controls">
+          <select id="savedQueries">
+            <option value="">Saved queries...</option>
+          </select>
+          <button onclick="runQuery()">Run Query</button>
+          <button onclick="exportResults()">Export</button>
+        </div>
+      </div>
+      <textarea 
+        class="query-input" 
+        id="queryInput"
+        placeholder="SELECT * FROM read_json_auto('channel.jsonl') LIMIT 100"
+      ></textarea>
+      <div class="query-hint">
+        DuckDB SQL. Files are in the Data/Logs directory. 
+        Use <code>read_json_auto('filename.jsonl')</code> to query JSONL files.
+        <a href="https://duckdb.org/docs/sql/introduction" target="_blank" style="color: var(--accent);">DuckDB Docs</a>
+      </div>
+    </div>
+    
+    <!-- Results Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Log Entries</span>
+        <span id="resultCount" style="color: var(--text-dim); font-size: 0.85rem;"></span>
+      </div>
+      <div class="log-container" id="logContainer">
+        <div class="empty-state">Select a channel or run a query</div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const API = window.location.origin;
+    let selectedChannel = null;
+    let refreshInterval = null;
+    let autoRefresh = true;
+    
+    // --- API Functions ---
+    
+    async function fetchJson(path) {
+      const res = await fetch(`${API}${path}`);
+      return res.json();
+    }
+    
+    async function checkHealth() {
+      try {
+        const health = await fetchJson('/health');
+        document.getElementById('statusDot').className = 'status-dot';
+        document.getElementById('statusText').textContent = `Queue: ${health.queueDepth}`;
+        document.getElementById('metricQueue').textContent = health.queueDepth;
+        document.getElementById('metricUptime').textContent = formatUptime(health.uptime);
+        return true;
+      } catch (e) {
+        document.getElementById('statusDot').className = 'status-dot error';
+        document.getElementById('statusText').textContent = 'Disconnected';
+        return false;
+      }
+    }
+    
+    async function refreshChannels() {
+      try {
+        const channels = await fetchJson('/channels');
+        const grid = document.getElementById('channelsGrid');
+        document.getElementById('metricChannels').textContent = channels.length;
+        
+        if (channels.length === 0) {
+          grid.innerHTML = '<div class="empty-state">No channels yet</div>';
+          return;
+        }
+        
+        grid.innerHTML = channels.map(ch => `
+          <div class="channel-card ${selectedChannel === ch.name ? 'selected' : ''}" 
+               onclick="selectChannel('${ch.name}')">
+            <div class="channel-name">${ch.name}</div>
+            <div class="channel-stats">
+              ${formatBytes(ch.totalSize)} • ${ch.files.length} file(s)
+              ${ch.metrics ? `• ${ch.metrics.velocity}/s` : ''}
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('Failed to refresh channels:', e);
+      }
+    }
+    
+    async function selectChannel(name) {
+      selectedChannel = name;
+      refreshChannels();
+
+      // Update query input with default query for this channel
+      const config = await fetchJson(`/channel/${name}`);
+      const ext = config.config.format === 'jsonl' ? 'jsonl' : 'log';
+      document.getElementById('queryInput').value =
+        `SELECT * FROM read_json_auto('${name}.${ext}') ORDER BY timestamp DESC LIMIT 100`;
+
+      // Auto-run the query
+      runQuery();
+    }
+    
+    function showQueryResults(result) {
+      const container = document.getElementById('logContainer');
+      const resultCount = document.getElementById('resultCount');
+
+      if (!result.success) {
+        container.innerHTML = `<div class="empty-state" style="color: var(--error);">
+          Error: ${escapeHtml(result.error)}
+        </div>`;
+        resultCount.textContent = `Error (${result.duration}ms)`;
+        return;
+      }
+
+      if (result.rows.length === 0) {
+        container.innerHTML = '<div class="empty-state">No results</div>';
+        resultCount.textContent = `0 rows (${result.duration}ms)`;
+        return;
+      }
+
+      container.innerHTML = `
+        <table class="log-table">
+          <thead>
+            <tr>
+              ${result.columns.map(col => `<th>${escapeHtml(col)}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${result.rows.map(row => `
+              <tr>
+                ${row.map((val, i) => {
+                  const col = result.columns[i].toLowerCase();
+                  let className = '';
+                  let displayVal = val;
+
+                  if (col === 'timestamp') {
+                    className = 'timestamp';
+                    displayVal = formatTimestamp(val);
+                  } else if (col === 'level') {
+                    className = `level-${val}`;
+                    displayVal = val ? val.toUpperCase() : '';
+                  } else if (col === 'message') {
+                    className = 'message';
+                  } else if (col === 'data' || typeof val === 'object') {
+                    className = 'data';
+                  }
+
+                  return `<td class="${className}">${escapeHtml(String(displayVal ?? ''))}</td>`;
+                }).join('')}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+
+      resultCount.textContent = `${result.rowCount} rows (${result.duration}ms)`;
+    }
+
+    let queryResults = null;
+
+    async function runQuery() {
+      const sql = document.getElementById('queryInput').value.trim();
+      if (!sql) {
+        alert('Please enter a SQL query');
+        return;
+      }
+
+      const container = document.getElementById('logContainer');
+      const resultCount = document.getElementById('resultCount');
+
+      container.innerHTML = '<div class="empty-state">Running query...</div>';
+      resultCount.textContent = '';
+
+      try {
+        const response = await fetch(`${API}/query`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sql })
+        });
+
+        const result = await response.json();
+        queryResults = result;
+        showQueryResults(result);
+
+      } catch (e) {
+        container.innerHTML = `<div class="empty-state" style="color: var(--error);">
+          Failed to execute query: ${escapeHtml(e.message)}
+        </div>`;
+        resultCount.textContent = 'Error';
+      }
+    }
+
+    function exportResults() {
+      if (!queryResults || !queryResults.success || queryResults.rows.length === 0) {
+        alert('No results to export. Run a query first.');
+        return;
+      }
+
+      // Create CSV
+      const headers = queryResults.columns.join(',');
+      const rows = queryResults.rows.map(row =>
+        row.map(val => {
+          const str = String(val ?? '');
+          // Escape quotes and wrap in quotes if contains comma or quote
+          if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return '"' + str.replace(/"/g, '""') + '"';
+          }
+          return str;
+        }).join(',')
+      );
+
+      const csv = [headers, ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `query-results-${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.csv`;
+      a.click();
+
+      URL.revokeObjectURL(url);
+    }
+    
+    // --- Utilities ---
+    
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+    
+    function formatUptime(seconds) {
+      if (seconds < 60) return `${Math.floor(seconds)}s`;
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+      return `${Math.floor(seconds / 3600)}h`;
+    }
+    
+    function formatTimestamp(ts) {
+      try {
+        const d = new Date(ts);
+        return d.toLocaleTimeString();
+      } catch {
+        return ts;
+      }
+    }
+    
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+    }
+    
+    // --- Refresh Loop ---
+    
+    function startRefreshLoop() {
+      const rate = parseInt(document.getElementById('refreshRate').value);
+      
+      if (refreshInterval) clearInterval(refreshInterval);
+      
+      refreshInterval = setInterval(() => {
+        if (document.getElementById('autoRefresh').checked) {
+          checkHealth();
+          refreshChannels();
+        }
+      }, rate);
+    }
+    
+    // --- Init ---
+    
+    document.getElementById('autoRefresh').addEventListener('change', (e) => {
+      autoRefresh = e.target.checked;
+    });
+    
+    document.getElementById('refreshRate').addEventListener('change', startRefreshLoop);
+    
+    // Initial load
+    checkHealth();
+    refreshChannels();
+    startRefreshLoop();
+  </script>
+</body>
+</html>

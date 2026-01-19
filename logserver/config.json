@@ -1,0 +1,9 @@
+{
+  "port": 3333,
+  "defaults": {
+    "maxFileSize": 10485760,
+    "maxFiles": 5,
+    "format": "jsonl"
+  },
+  "channels": {}
+}
