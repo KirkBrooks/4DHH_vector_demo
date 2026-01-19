@@ -6,7 +6,8 @@
 */
 
 property file : 4D.File  // the JSONL file to be imported
-property tables : Collection  // table names that will be written to 
+property tables : Collection  // table names that will be written to
+property table_names : Text  // comma-delimited table names for form binding
 property ruler_n_workers; ruler_queue_limit : Integer  //  ruler objects
 property chunkSize : Integer
 property method_name : Text
@@ -48,7 +49,7 @@ Function handle_event($formEvent : Object)->$handled : Boolean
 	
 	Case of 
 		: ($formEvent.code=On Load)
-			SET TIMER(60*2)
+			SET TIMER(30)
 			
 		: ($formEvent.code=On Timer)
 			This.handle_On_Timer()
@@ -75,6 +76,8 @@ Function handle_event($formEvent : Object)->$handled : Boolean
 			This._set_parameter("ok_to_run"; False)
 			This._kill_workers()
 			This._set_parameter("worker_queue"; New shared collection(0; 0; 0; 0; 0; 0; 0; 0))
+			OBJECT SET ENABLED(*; "btn_import"; True)
+			OBJECT SET ENABLED(*; "btn_cancel_import"; False)
 			Console_log("xxx  Import canceled:  "+This.parameters.fileName)
 			
 		: ($formEvent.objectName="btn_console") && ($formEvent.code=On Clicked)
@@ -153,8 +156,8 @@ Function handle_btn_import($formEvent : Object)
 	
 Function handle_table_names($formEvent : Object)
 	// this object is enterable when app is compiled
-	This.tables:=Split string(OBJECT Get value("table_names"); ","; sk ignore empty strings+sk trim spaces)  // filter out duplicates
-	OBJECT SET VALUE("table_names"; This.tables.join(", "))
+	This.tables:=Split string(This.table_names; ","; sk ignore empty strings+sk trim spaces)  // filter out duplicates
+	This.table_names:=This.tables.join(", ")
 	This._setup_table_metrics()
 	
 Function handle_method_name($formEvent : Object)
@@ -204,7 +207,7 @@ Function handle_method_name($formEvent : Object)
 	End while 
 	
 	This.tables:=$tables.distinct()  // filter out duplicates
-	OBJECT SET VALUE("table_names"; This.tables.join(", "))
+	This.table_names:=This.tables.join(", ")
 	
 	// set up table_metrics
 	This._setup_table_metrics()
@@ -242,7 +245,7 @@ Function handle_btn_file($formEvent : Object)
 		// update the parameters
 		This._set_parameter("fileSize"; This.file.size)
 		This._set_parameter("path"; This.file.platformPath)
-		This._set_parameter("name"; This.file.fullName)
+		This._set_parameter("fileName"; This.file.fullName)
 	End if 
 	
 Function handle_ruler($formEvent : Object)
@@ -253,7 +256,7 @@ Function handle_ruler($formEvent : Object)
 			This._set_parameter("worker_limit_index"; This.ruler_n_workers-1)  // -1 because the saved value is the collection index
 			
 		: ($formEvent.objectName="ruler_queue_limit")
-			This._set_parameter("ruler_queue_limit"; This.ruler_queue_limit)
+			This._set_parameter("worker_queue_limit"; This.ruler_queue_limit)
 			
 	End case 
 	
@@ -264,9 +267,15 @@ Function _ok_to_run->$ok : Boolean
 	
 Function _check_if_done
 	// we are done when there are no more jobs in any of the queues
-	If (This.get_worker_queue_count()=0)
+	// AND the file has been fully read (bytes_read >= fileSize)
+	var $file_complete : Boolean:=This.parameters.bytes_read>=This.parameters.fileSize
+	var $queues_empty : Boolean:=This.get_worker_queue_count()=0
+
+	If ($file_complete) && ($queues_empty)
 		This._set_parameter("ok_to_run"; False)
 		This._kill_workers()
+		OBJECT SET ENABLED(*; "btn_import"; True)
+		OBJECT SET ENABLED(*; "btn_cancel_import"; False)
 	End if 
 	
 Function _set_parameter($key : Text; $value)

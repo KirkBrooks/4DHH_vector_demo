@@ -116,7 +116,7 @@
 					"top": 84,
 					"width": 551,
 					"height": 17,
-					"dataSource": "",
+					"dataSource": "Form:C1466.table_names",
 					"enterable": false,
 					"placeholder": "  comma delimited list of tables where records are created"
 				},
@@ -170,7 +170,7 @@
 					"stroke": "#696969",
 					"textAlign": "right"
 				},
-				"chunckSize": {
+				"chunkSize": {
 					"type": "input",
 					"left": 142,
 					"top": 126,
@@ -201,15 +201,6 @@
 					"events": [
 						"onClick"
 					]
-				},
-				"WebArea": {
-					"type": "webArea",
-					"left": 8,
-					"top": 686,
-					"width": 700,
-					"height": 331,
-					"sizingX": "grow",
-					"sizingY": "grow"
 				},
 				"btn_cancel_import": {
 					"type": "button",
@@ -370,7 +361,7 @@
 			}
 		}
 	],
-	"geometryStamp": 374,
+	"geometryStamp": 375,
 	"formClass": "Import_dialog_controller",
 	"editor": {
 		"activeView": "View 1",

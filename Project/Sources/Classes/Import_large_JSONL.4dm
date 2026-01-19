@@ -54,7 +54,7 @@ The chunks will be passed to workers seqeuentially
 	var $threshold; $delay : Integer
 	var $isFirst : Boolean:=True
 	
-	Console_log("Beginning import of: "+This.parameters.name)
+	Console_log("Beginning import of: "+This.fileName)
 	
 	var $ms:=Milliseconds
 	SET CHANNEL(10; This.path)
@@ -94,8 +94,9 @@ All subsequent ones won't so we need to add it as well
 	Until (Length($text_chunk)<2) || (Not(This.ok_to_run))
 	
 	SET CHANNEL(11)  //  close the file
-	
-	Console_log("Finished importing : "+This.fileName+" in "+String(This.elapsedSeconds)+" seconds")
+
+	var $elapsedSeconds : Real:=(Milliseconds-$ms)/1000
+	Console_log("Finished importing : "+This.fileName+" in "+String($elapsedSeconds; "###,##0.00")+" seconds")
 	
 Function _set_parameter($key : Text; $value)
 	//  sets a value in the shared parameters object
