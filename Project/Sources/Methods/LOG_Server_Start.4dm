@@ -8,7 +8,7 @@
 //    .message : Text
 //    .port : Integer (if successful)
 
-var $result : Object
+#DECLARE->$result : Object
 $result:=New object("success"; False; "message"; "")
 
 //  Check if already running

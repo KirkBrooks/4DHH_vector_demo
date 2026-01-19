@@ -2,7 +2,7 @@
 
 
 // LOG_Server_Stop()
-$result:=LOG_Server_Start()
+var $result:=LOG_Server_Start()
 
 
 If (Storage.logServer=Null)

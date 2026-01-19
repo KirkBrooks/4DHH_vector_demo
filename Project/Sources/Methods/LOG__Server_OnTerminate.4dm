@@ -1,17 +1,15 @@
 //%attributes = {"invisible":true,"preemptive":"capable"}
-  //  LOG__Server_OnTerminate
-  //  Handler for when log server process ends
-  //  $1 : Object with .exitCode, .signalName (if killed by signal)
+//  LOG__Server_OnTerminate
+//  Handler for when log server process ends
+//  $1 : Object with .exitCode, .signalName (if killed by signal)
 
-var $event : Object
-$event:=$1
-
-  //  Clean up Storage reference
+#DECLARE($event : Object)
+//  Clean up Storage reference
 Use (Storage)
 	Storage.logServer:=Null
 End use 
 
-  //  Log the termination
+//  Log the termination
 If ($event#Null)
 	var $msg : Text
 	If ($event.exitCode=0)
@@ -22,5 +20,5 @@ If ($event#Null)
 			$msg:=$msg+" (signal: "+$event.signalName+")"
 		End if 
 	End if 
-	  //  Could log this somewhere
+	//  Could log this somewhere
 End if 

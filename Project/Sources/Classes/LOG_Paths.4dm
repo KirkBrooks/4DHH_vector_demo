@@ -28,7 +28,7 @@ Function get serverFile : 4D.File
 Function get configFile : 4D.File
 	return This.serverFolder.file("config.json")
 	
-Function get bunFile : 4D.File
+Function get bunFile->$file : 4D.File
 	//  Priority: 1) bundled in logserver/bin, 2) system locations
 	var $locations : Collection:=[]
 	$locations.push(This.serverFolder.file("bin/bun"))
@@ -36,13 +36,13 @@ Function get bunFile : 4D.File
 	$locations.push(This.serverFolder.file("/usr/local/bin/bun"))
 	var $name : Text:=Folder(fk user preferences folder).name
 	$locations.push(This.serverFolder.folder($name).file(".bun/bin/bun"))
-
+	
 	For each ($file; $locations)
 		If ($file.exists)
 			return $file
-		End if
-	End for each
-
+		End if 
+	End for each 
+	
 	return Null
 	
 Function get uiFolder : 4D.Folder
