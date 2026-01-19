@@ -8,16 +8,14 @@ Called by Import_large_JSONL class via CALL WORKER.
 Each line in the chunk is a JSON object with Product data from meta_Electronics.jsonl
 */
 
-#DECLARE($chunk : Text; $fileName : Text; $worker : Collection)
-Console_log("Processing: "+$fileName+"; "+Current process name)
+#DECLARE($chunk : Text; $workers : Collection)
+Console_log("= = = Processing: "+Current process name)
 
 var $lines : Collection
 var $line : Text
 var $obj : Object
 var $product : cs.ProductEntity
 var $description : Collection
-var $count : Integer
-
 
 // Split the chunk into individual JSONL lines
 $lines:=Split string($chunk; "\n"; sk ignore empty strings)
@@ -72,15 +70,18 @@ For each ($line; $lines)
 			End if 
 			
 			// Save the entity
-			$product.save()
+			If ($product.save().success=False)
+				Console_log("+++++++++++++++  Save failed :"+Current method name+";  Product: "+$line)
+			End if 
 			
-			$count+=1
 		End if 
 	End if 
 End for each 
 
-Use ($worker)
-	$worker[Num(Current process name)]-=1
+var $index : Integer:=Num(Current process name)  //  this is why the name of the worker is important
+
+Use ($workers)
+	$workers[$index]-=1  //  decrement this job
 End use 
 
-Console_log(Current process name+"; "+String($count)+" records created. ")
+Console_log("* * * Processing Done: "+Current process name)

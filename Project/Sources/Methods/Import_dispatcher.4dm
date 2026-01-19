@@ -6,7 +6,15 @@ Import_dispatcher ()
 */
 
 #DECLARE($parameters : Object)
+
+If (Not($parameters.ok_to_run))
+	KILL WORKER
+	return 
+End if 
+
 var $importer : cs.Import_large_JSONL
 
 $importer:=cs.Import_large_JSONL.new($parameters)
 $importer.import_file()
+
+KILL WORKER

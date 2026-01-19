@@ -14,9 +14,10 @@
 	"events": [
 		"onLoad",
 		"onClick",
-		"onDataChange"
+		"onDataChange",
+		"onTimer"
 	],
-	"windowTitle": "window title",
+	"windowTitle": "JSONL Importer",
 	"destination": "detailScreen",
 	"pages": [
 		{
@@ -117,7 +118,7 @@
 					"height": 17,
 					"dataSource": "",
 					"enterable": false,
-					"placeholder": "  import will create records in these tables"
+					"placeholder": "  comma delimited list of tables where records are created"
 				},
 				"btn_file": {
 					"type": "button",
@@ -194,7 +195,7 @@
 					"type": "button",
 					"text": "Do Import",
 					"top": 271,
-					"left": 28,
+					"left": 8,
 					"width": 101,
 					"height": 24,
 					"events": [
@@ -204,16 +205,172 @@
 				"WebArea": {
 					"type": "webArea",
 					"left": 8,
-					"top": 306,
+					"top": 686,
 					"width": 700,
 					"height": 331,
 					"sizingX": "grow",
 					"sizingY": "grow"
+				},
+				"btn_cancel_import": {
+					"type": "button",
+					"text": "Cancel Import",
+					"top": 271,
+					"left": 607,
+					"width": 101,
+					"height": 24,
+					"events": [
+						"onClick"
+					],
+					"visibility": "visible"
+				},
+				"Thermometer": {
+					"type": "progress",
+					"left": 119,
+					"top": 272,
+					"width": 428,
+					"height": 23,
+					"max": 100,
+					"dataSource": "Form:C1466.Thermometer",
+					"continuousExecution": false
+				},
+				"btn_console": {
+					"type": "button",
+					"text": "Show Console",
+					"top": 122,
+					"left": 598,
+					"width": 101,
+					"height": 24,
+					"events": [
+						"onClick"
+					]
+				},
+				"Input1": {
+					"type": "input",
+					"left": 554,
+					"top": 272,
+					"width": 49,
+					"height": 17,
+					"dataSource": "Form:C1466.Thermometer",
+					"dataSourceTypeHint": "number",
+					"enterable": false,
+					"focusable": false,
+					"contextMenu": "none",
+					"numberFormat": "###,##0"
+				},
+				"Text3": {
+					"type": "text",
+					"text": "Worker Jobs :",
+					"top": 310,
+					"left": 8,
+					"width": 121,
+					"height": 16,
+					"fontSize": 14,
+					"stroke": "#696969",
+					"textAlign": "right"
+				},
+				"worker_jobs": {
+					"type": "input",
+					"left": 137,
+					"top": 310,
+					"width": 556,
+					"height": 17
+				},
+				"time_series_LB": {
+					"type": "listbox",
+					"left": 137,
+					"top": 333,
+					"width": 509,
+					"height": 244,
+					"events": [
+						"onClick",
+						"onHeaderClick",
+						"onDataChange",
+						"onSelectionChange"
+					],
+					"listboxType": "collection",
+					"dataSource": "Form:C1466.time_series_LB",
+					"resizingMode": "legacy",
+					"hideFocusRing": true,
+					"scrollbarHorizontal": "hidden",
+					"scrollbarVertical": "automatic",
+					"hideExtraBlankRows": true,
+					"showFooters": true,
+					"columns": [
+						{
+							"header": {
+								"text": "n",
+								"name": "Header1"
+							},
+							"name": "Column1",
+							"footer": {
+								"name": "Footer1"
+							},
+							"dataSourceTypeHint": "number",
+							"dataSource": "This:C1470.n",
+							"width": 55,
+							"enterable": false
+						},
+						{
+							"header": {
+								"name": "Header2",
+								"text": "recs"
+							},
+							"name": "Column2",
+							"footer": {
+								"name": "Footer2",
+								"dataSourceTypeHint": "number",
+								"variableCalculation": "sum"
+							},
+							"dataSourceTypeHint": "number",
+							"dataSource": "This:C1470.recs",
+							"enterable": false
+						},
+						{
+							"header": {
+								"name": "Header3",
+								"text": "workers"
+							},
+							"name": "Column3",
+							"footer": {
+								"name": "Footer3"
+							},
+							"dataSourceTypeHint": "number",
+							"dataSource": "This:C1470.workers",
+							"width": 64,
+							"enterable": false
+						},
+						{
+							"header": {
+								"name": "Header4",
+								"text": "limit"
+							},
+							"name": "Column4",
+							"footer": {
+								"name": "Footer4"
+							},
+							"dataSourceTypeHint": "number",
+							"dataSource": "This:C1470.limit",
+							"enterable": false
+						},
+						{
+							"header": {
+								"name": "Header5",
+								"text": "chunk"
+							},
+							"name": "Column5",
+							"footer": {
+								"name": "Footer5"
+							},
+							"dataSourceTypeHint": "number",
+							"dataSource": "This:C1470.chunk",
+							"enterable": false
+						}
+					]
 				}
 			}
 		}
 	],
-	"geometryStamp": 249,
+	"geometryStamp": 374,
 	"formClass": "Import_dialog_controller",
 	"editor": {
 		"activeView": "View 1",
@@ -222,5 +379,6 @@
 			"View 1": {}
 		}
 	},
-	"method": "method.4dm"
+	"method": "method.4dm",
+	"menuBar": "Barre #1"
 }

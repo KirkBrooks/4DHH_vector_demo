@@ -9,8 +9,8 @@ Each line in the chunk is a JSON object with Rating data from Electronics.jsonl
 Also creates RatingImage records for ratings that have images.
 */
 
-#DECLARE($chunk : Text; $fileName : Text; $worker : Collection)
-Console_log("Processing: "+$fileName+"; "+Current process name)
+#DECLARE($chunk : Text; $workers : Collection)
+Console_log("= = = Processing: "+Current process name)
 
 var $lines : Collection
 var $line : Text
@@ -23,7 +23,6 @@ var $timestamp : Integer
 var $date : Date
 var $time : Time
 var $isoTimestamp : Text
-var $count : Integer
 
 // Split the chunk into individual JSONL lines
 $lines:=Split string($chunk; "}\n"; sk ignore empty strings+sk trim spaces)
@@ -47,7 +46,6 @@ For each ($line; $lines)
 		$rating.verified_purchase:=$obj.verified_purchase
 		$rating.timestamp:=$obj.timestamp
 		$rating.save()
-		$count+=1
 		
 		// Create RatingImage records for any images
 		If ($obj.images#Null) && ($obj.images.length>0)
@@ -59,21 +57,16 @@ For each ($line; $lines)
 				$ratingImage.large_image_url:=$imageObj.large_image_url
 				$ratingImage.attachment_type:=$imageObj.attachment_type
 				$ratingImage.save()
-				$count+=1
 			End for each 
 		End if 
 		
 	End if 
 End for each 
 
-Console_log(Current process name+"; "+String($count)+" records created. ")
+var $index : Integer:=Num(Current process name)  //  this is why the name of the worker is important
 
-Use ($worker)
-	$worker[Num(Current process name)]-=1
+Use ($workers)
+	$workers[$index]-=1  //  decrement this job
 End use 
 
-If ($worker[Num(Current process name)]<1)
-	Console_log(">>>>  "+Current process name+"; QUEUE EMPTY  <<<< ")
-Else 
-	Console_log(" --- "+Current process name+"; QUEUE = "+String($worker[Num(Current process name)]))
-End if 
+Console_log("* * * Processing Done: "+Current process name)

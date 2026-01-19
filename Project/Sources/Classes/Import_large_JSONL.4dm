@@ -48,78 +48,97 @@ Function import_file()
 /*  Read a chunck of data and pass it to a worker for processing
 The chunks will be passed to workers seqeuentially
 */
-	var $text; $lastChar : Text
-	var $importedSize : Real
-	var $i : Integer
+	var $text_chunk; $lastChar : Text
+	var $bytes_read : Real
+	var $count : Integer
 	var $threshold; $delay : Integer
+	var $isFirst : Boolean:=True
 	
-	Console_log("Beginning import of: "+This.fileName)
+	Console_log("Beginning import of: "+This.parameters.name)
 	
 	var $ms:=Milliseconds
 	SET CHANNEL(10; This.path)
 	
+	var $delimiter : Text:="}"+Char(10)+"{"
+	
 	Repeat 
-		RECEIVE PACKET($text; This.chunkSize)
+		RECEIVE PACKET($text_chunk; This.chunkSize)
 		
-		If (Length($text)>2)  //  file ends in \n or maybe \r\n
+		If (Length($text_chunk)>2)  //  file ends in \n or maybe \r\n
 			// read until we are sure we have a complete object in the chunk
-			RECEIVE PACKET($lastChar; "}"+Char(10)+"{")  // read till next }\n{ 
+			// this is the position of the next $delimiter or the end of the document
+			// RECEIVE PACKET will stop reading at the end of the document if it doesn't find a delimiter
+			RECEIVE PACKET($lastChar; $delimiter)
 			
-			$text+=$lastChar+"}"  //Delimiter string is not returned in receiveVar!  So we have to add a } to $text
+			$text_chunk+=$lastChar+"}"  //Delimiter string is not returned in receiveVar!  So we have to add a } to $text
 			
-			Case of 
-				: ($importedSize=0)  // this is the first chunk
-					$importedSize+=(Length($text)+1)  //  for \n
-					This._assign_chunk($text)
-				Else 
+			If ($isFirst)  // this is the first chunk which will have the leading { char
+				$isFirst:=False
+				$bytes_read+=(Length($text_chunk)+1)  //  for }
+				This._assign_chunk($text_chunk)
+			Else 
 /*
 Only the first chuck will have a leading {
 All subsequent ones won't so we need to add it as well 
 */
-					$importedSize+=(Length($text)+2)  //  for  { and \n
-					This._assign_chunk("{"+$text)
-					// I'm avoiding $text:="{"+$text because re-writing $text is minimally slower
-			End case 
+				$bytes_read+=(Length($text_chunk)+2)  //  for  { and \n
+				This._assign_chunk("{"+$text_chunk)
+				// I'm avoiding `$text:="{"+$text`  because re-writing $text is minimally slower
+			End if 
 			
-			$importedSize+=Length($text)  // keep track of how many bytes read
-			This._msg($importedSize)
+			This._set_parameter("bytes_read"; $bytes_read)
+			$count+=1  // number of tasks created
 			
 		End if 
 		
-	Until ($text="") || (Not(This.ok_to_run))
+	Until (Length($text_chunk)<2) || (Not(This.ok_to_run))
 	
 	SET CHANNEL(11)  //  close the file
 	
 	Console_log("Finished importing : "+This.fileName+" in "+String(This.elapsedSeconds)+" seconds")
 	
+Function _set_parameter($key : Text; $value)
+	//  sets a value in the shared parameters object
+	Use (This.parameters)
+		This.parameters[$key]:=$value
+	End use 
 	
 Function _assign_chunk($chunk : Text)
 	//  assigns this chunk to the next worker that has capacity
-	var $next_index : Integer:=This.next_worker_index
+	var $this_index : Integer:=This.next_worker_index
 	var $ok : Boolean
+	var $count : Integer
 	
 	Repeat 
-		If ($next_index>This.worker_limit_index)  // over limit
-			$next_index:=0  // start back at the bottom
-		Else 
-			$next_index+=1  //  increment to the next worker index
+		$count+=1
+		
+		If ($this_index>=This.worker_limit_index)  // over or at limit
+			$this_index:=0  // start back at the bottom
 		End if 
 		
 		// how many jobs in this queue?
-		$ok:=This.parameters.worker_queue[$next_index]<This.worker_queue_limit
+		$ok:=This.parameters.worker_queue[$this_index]<This.worker_queue_limit
 		
-		IDLE  // yield back
+		If (Not($ok)) && ($count>This.worker_limit_index)
+			// we have checked all the workers
+			Console_log(">>>>>>>>>>>>>>> Import process delayed for 1 sec <<<")
+			DELAY PROCESS(Current process; 60*1)  // pause for 1 secs
+			$count:=0
+		Else 
+			IDLE  // yield back
+		End if 
+		
 	Until ($ok)
 	
-	var $workerName:="Importer_"+String($next_index)
+	var $workerName:="Importer_"+String($this_index)
 	// increment the queue counter
 	Use (This.parameters.worker_queue)
-		This.parameters.worker_queue[$next_index]+=1
+		This.parameters.worker_queue[$this_index]+=1
 	End use 
 	
-	CALL WORKER($workerName; This.method; $chunk; This.fileName; This.parameters.worker_queue)
+	CALL WORKER($workerName; This.method; $chunk; This.parameters.worker_queue)
 	
-	This.next_worker_index:=$next_index+1
+	This.next_worker_index:=$this_index+1
 	
 Function _msg($size : Real)
 	Console_log(This.fileName+"; Data Read: "+String($size/1048576; "########0.00")+" mbs;  "+String(Round($size/This.fileSize*100; 3); "###0.000")+" % \r")
