@@ -10,8 +10,6 @@ Also creates RatingImage records for ratings that have images.
 */
 
 #DECLARE($chunk : Text; $workers : Collection)
-Console_log("= = = Processing: "+Current process name)
-
 var $lines : Collection
 var $line : Text
 var $obj : Object
@@ -34,28 +32,29 @@ For each ($line; $lines)
 	If ($obj#Null)
 		// Create new Rating entity
 		$rating:=ds.Rating.new()
-		
+		$rating.fromObject($obj)
 		// Map fields from JSON to Rating table
-		$rating.rating:=$obj.rating
-		$rating.title:=$obj.title
-		$rating.text:=$obj.text
-		$rating.asin:=$obj.asin
-		$rating.parent_asin:=$obj.parent_asin
-		$rating.user_id:=$obj.user_id
-		$rating.helpful_vote:=$obj.helpful_vote
-		$rating.verified_purchase:=$obj.verified_purchase
-		$rating.timestamp:=$obj.timestamp
+		//$rating.rating:=$obj.rating
+		//$rating.title:=$obj.title
+		//$rating.text:=$obj.text
+		//$rating.asin:=$obj.asin
+		//$rating.parent_asin:=$obj.parent_asin
+		//$rating.user_id:=$obj.user_id
+		//$rating.helpful_vote:=$obj.helpful_vote
+		//$rating.verified_purchase:=$obj.verified_purchase
+		//$rating.timestamp:=$obj.timestamp
 		$rating.save()
 		
 		// Create RatingImage records for any images
 		If ($obj.images#Null) && ($obj.images.length>0)
 			For each ($imageObj; $obj.images)
 				$ratingImage:=ds.RatingImage.new()
-				$ratingImage.FK_Rating:=$rating.PK
-				$ratingImage.small_image_url:=$imageObj.small_image_url
-				$ratingImage.medium_image_url:=$imageObj.medium_image_url
-				$ratingImage.large_image_url:=$imageObj.large_image_url
-				$ratingImage.attachment_type:=$imageObj.attachment_type
+				$ratingImage.fromObject($imageObj)
+				//$ratingImage.FK_Rating:=$rating.PK
+				//$ratingImage.small_image_url:=$imageObj.small_image_url
+				//$ratingImage.medium_image_url:=$imageObj.medium_image_url
+				//$ratingImage.large_image_url:=$imageObj.large_image_url
+				//$ratingImage.attachment_type:=$imageObj.attachment_type
 				$ratingImage.save()
 			End for each 
 		End if 
@@ -69,4 +68,3 @@ Use ($workers)
 	$workers[$index]-=1  //  decrement this job
 End use 
 
-Console_log("* * * Processing Done: "+Current process name)

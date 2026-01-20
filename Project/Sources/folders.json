@@ -11,5 +11,24 @@
 	"Default Forms": {},
 	"Default Project Methods": {},
 	"Default Tables": {},
+	"Log Server": {
+		"methods": [
+			"LOG__Flush_Queue",
+			"LOG__HTTP_Error",
+			"LOG__HTTP_Response",
+			"LOG__Server_OnData",
+			"LOG__Server_OnError",
+			"LOG__Server_OnTerminate",
+			"LOG_Entry",
+			"LOG_Server_Start",
+			"LOG_Server_Stop",
+			"LOG_Test",
+			"LOG_Test_Volume",
+			"LOG_Worker"
+		],
+		"classes": [
+			"LOG_Paths"
+		]
+	},
 	"trash": {}
 }

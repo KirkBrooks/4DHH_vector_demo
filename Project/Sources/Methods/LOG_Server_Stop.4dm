@@ -10,12 +10,16 @@
 #DECLARE->$result : Object
 $result:=New object("success"; False; "message"; "")
 
+//  Stop the LOG_Worker first (flush remaining entries)
+CALL WORKER("LOG_Worker"; "LOG_Worker"; "stop")
+DELAY PROCESS(Current process; 10)  // Give it time to flush
+
 //  Check if running
 If (Storage.logServer=Null)
 	$result.message:="Log server not running"
 	$result.success:=True
-	return 
-End if 
+	return
+End if
 
 var $worker : 4D.SystemWorker
 $worker:=Storage.logServer.worker

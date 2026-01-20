@@ -518,7 +518,8 @@
     function formatTimestamp(ts) {
       try {
         const d = new Date(ts);
-        return d.toLocaleTimeString();
+        // ISO format with milliseconds: YYYY-MM-DDTHH:MM:SS.mmm
+        return d.toISOString().slice(0, 23);
       } catch {
         return ts;
       }

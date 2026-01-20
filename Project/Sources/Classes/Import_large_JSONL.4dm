@@ -94,7 +94,7 @@ All subsequent ones won't so we need to add it as well
 	Until (Length($text_chunk)<2) || (Not(This.ok_to_run))
 	
 	SET CHANNEL(11)  //  close the file
-
+	
 	var $elapsedSeconds : Real:=(Milliseconds-$ms)/1000
 	Console_log("Finished importing : "+This.fileName+" in "+String($elapsedSeconds; "###,##0.00")+" seconds")
 	
@@ -123,8 +123,8 @@ Function _assign_chunk($chunk : Text)
 		If (Not($ok)) && ($count>This.worker_limit_index)
 			// we have checked all the workers
 			Console_log(">>>>>>>>>>>>>>> Import process delayed for 1 sec <<<")
-			DELAY PROCESS(Current process; 60*1)  // pause for 1 secs
-			$count:=0
+			DELAY PROCESS(Current process; 30)  // pause 
+			$count:=-1
 		Else 
 			IDLE  // yield back
 		End if 
